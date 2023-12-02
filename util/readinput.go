@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -8,42 +9,51 @@ import (
 
 type Iterator = func(s string)
 
-func ReadStrings(file string, delim string) ([]string, error) {
+func filename(day int, isSample bool) string {
+	folder := "inputs"
+	if isSample {
+		folder = "samples"
+	}
+
+	return fmt.Sprintf("%s/%d.txt", folder, day)
+}
+
+func ReadStrings(day int, isSample bool, delim string) ([]string, error) {
 	var vals []string
 
-	err := read(file, delim, func(s string) {
+	err := read(filename(day, isSample), delim, func(s string) {
 		vals = append(vals, s)
 	})
 	if err != nil {
-		return vals, err
+		return nil, err
 	}
 
 	return vals, nil
 }
 
-func ReadInts(file string, delim string) ([]int, error) {
+func ReadInts(day int, isSample bool, delim string) ([]int, error) {
 	var vals []int
 
-	err := read(file, delim, func(s string) {
+	err := read(filename(day, isSample), delim, func(s string) {
 		i, _ := strconv.Atoi(s)
 		vals = append(vals, i)
 	})
 	if err != nil {
-		return vals, err
+		return nil, err
 	}
 
 	return vals, nil
 }
 
-func ReadFloats(file string, delim string) ([]float64, error) {
+func ReadFloats(day int, isSample bool, delim string) ([]float64, error) {
 	var vals []float64
 
-	err := read(file, delim, func(s string) {
+	err := read(filename(day, isSample), delim, func(s string) {
 		i, _ := strconv.ParseFloat(s, 64)
 		vals = append(vals, i)
 	})
 	if err != nil {
-		return vals, err
+		return nil, err
 	}
 
 	return vals, nil
