@@ -20,7 +20,6 @@ func main() {
 	}
 
 	total := 0
-
 	for y := 0; y < len(grid); y++ {
 		var currentNumber []byte
 		var currentNumberAdjacent bool
@@ -29,42 +28,14 @@ func main() {
 			if isNumber(grid[y][x]) {
 				currentNumber = append(currentNumber, grid[y][x])
 
-				if !currentNumberAdjacent && y-1 >= 0 {
-					if isSymbol(grid[y-1][x]) {
+				util.AdjacentMatch(grid, y, x, true, func(char byte, y, x int) bool {
+					if isSymbol(char) {
 						currentNumberAdjacent = true
+						return true
 					}
 
-					if !currentNumberAdjacent && x-1 >= 0 && isSymbol(grid[y-1][x-1]) {
-						currentNumberAdjacent = true
-					}
-
-					if !currentNumberAdjacent && x+1 < len(grid[0]) && isSymbol(grid[y-1][x+1]) {
-						currentNumberAdjacent = true
-					}
-				}
-
-				if !currentNumberAdjacent && y+1 < len(grid) {
-					if isSymbol(grid[y+1][x]) {
-						currentNumberAdjacent = true
-					}
-
-					if !currentNumberAdjacent && x-1 >= 0 && isSymbol(grid[y+1][x-1]) {
-						currentNumberAdjacent = true
-					}
-
-					if !currentNumberAdjacent && x+1 < len(grid[0]) && isSymbol(grid[y+1][x+1]) {
-						currentNumberAdjacent = true
-					}
-
-				}
-
-				if !currentNumberAdjacent && x-1 >= 0 && isSymbol(grid[y][x-1]) {
-					currentNumberAdjacent = true
-				}
-
-				if !currentNumberAdjacent && x+1 < len(grid[0]) && isSymbol(grid[y][x+1]) {
-					currentNumberAdjacent = true
-				}
+					return false
+				})
 			}
 
 			if len(currentNumber) > 0 && (x+1 == len(grid[0]) || !isNumber(grid[y][x+1])) {

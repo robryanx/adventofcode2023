@@ -29,42 +29,13 @@ func main() {
 			if isNumber(grid[y][x]) {
 				currentNumber = append(currentNumber, grid[y][x])
 
-				if y-1 >= 0 {
-					if isGear(grid[y-1][x]) {
-						currentGears[fmt.Sprintf("%d,%d", y-1, x)] = struct{}{}
+				util.AdjacentMatch(grid, y, x, true, func(char byte, y, x int) bool {
+					if isGear(char) {
+						currentGears[fmt.Sprintf("%d,%d", y, x)] = struct{}{}
 					}
 
-					if x-1 >= 0 && isGear(grid[y-1][x-1]) {
-						currentGears[fmt.Sprintf("%d,%d", y-1, x-1)] = struct{}{}
-					}
-
-					if x+1 < len(grid[0]) && isGear(grid[y-1][x+1]) {
-						currentGears[fmt.Sprintf("%d,%d", y-1, x+1)] = struct{}{}
-					}
-				}
-
-				if y+1 < len(grid) {
-					if isGear(grid[y+1][x]) {
-						currentGears[fmt.Sprintf("%d,%d", y+1, x)] = struct{}{}
-					}
-
-					if x-1 >= 0 && isGear(grid[y+1][x-1]) {
-						currentGears[fmt.Sprintf("%d,%d", y+1, x-1)] = struct{}{}
-					}
-
-					if x+1 < len(grid[0]) && isGear(grid[y+1][x+1]) {
-						currentGears[fmt.Sprintf("%d,%d", y+1, x+1)] = struct{}{}
-					}
-
-				}
-
-				if x-1 >= 0 && isGear(grid[y][x-1]) {
-					currentGears[fmt.Sprintf("%d,%d", y, x-1)] = struct{}{}
-				}
-
-				if x+1 < len(grid[0]) && isGear(grid[y][x+1]) {
-					currentGears[fmt.Sprintf("%d,%d", y, x+1)] = struct{}{}
-				}
+					return false
+				})
 			}
 
 			if len(currentNumber) > 0 && (x+1 == len(grid[0]) || !isNumber(grid[y][x+1])) {
