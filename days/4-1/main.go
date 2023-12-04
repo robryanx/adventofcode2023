@@ -2,14 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/robryanx/adventofcode2023/util"
 	"regexp"
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/robryanx/adventofcode2023/util"
 )
 
 var multipleSpace = regexp.MustCompile(`\s+`)
+var cardSplit = regexp.MustCompile(`^Card\s+([0-9]+): ([0-9\s]+)\s\|\s([0-9\s]+)`)
 
 func main() {
 	cards, err := util.ReadStrings(4, false, "\n")
@@ -19,11 +21,10 @@ func main() {
 
 	total := 0
 	for _, card := range cards {
-		cardParts := strings.Split(card, "|")
-		winningParts := strings.Split(cardParts[0], ":")
+		parts := cardSplit.FindStringSubmatch(card)
 
-		var winningNumbers []int
-		for _, numberRaw := range multipleSpace.Split(strings.Trim(winningParts[1], " "), -1) {
+		winningNumbers := make([]int, 5)
+		for _, numberRaw := range multipleSpace.Split(strings.Trim(parts[2], " "), -1) {
 			number, err := strconv.Atoi(numberRaw)
 			if err != nil {
 				panic(err)
@@ -33,7 +34,7 @@ func main() {
 		}
 
 		count := 0
-		for _, numberRaw := range multipleSpace.Split(strings.Trim(cardParts[1], " "), -1) {
+		for _, numberRaw := range multipleSpace.Split(strings.Trim(parts[3], " "), -1) {
 			number, err := strconv.Atoi(numberRaw)
 			if err != nil {
 				panic(err)
