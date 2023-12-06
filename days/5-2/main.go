@@ -95,48 +95,48 @@ func main() {
 		var destinationRanges []passRange
 		for _, currentMap := range maps {
 			var unhandledSourceRanges []passRange
-			for _, values := range currentMap {
+			for _, mapRange := range currentMap {
 				for j := 0; j < len(sourceRanges); j++ {
 					// seed range is contained within a single source range
-					if sourceRanges[j].start >= values.source.start && sourceRanges[j].end <= values.source.end {
+					if sourceRanges[j].start >= mapRange.source.start && sourceRanges[j].end <= mapRange.source.end {
 						destinationRanges = append(destinationRanges, passRange{
-							start: values.destination.start + (sourceRanges[j].start - values.source.start),
-							end:   values.destination.start + (sourceRanges[j].end - values.source.start),
+							start: mapRange.destination.start + (sourceRanges[j].start - mapRange.source.start),
+							end:   mapRange.destination.start + (sourceRanges[j].end - mapRange.source.start),
 						})
-					} else if sourceRanges[j].start < values.source.start && sourceRanges[j].end > values.source.end { // bigger than the range
+					} else if sourceRanges[j].start < mapRange.source.start && sourceRanges[j].end > mapRange.source.end { // bigger than the range
 						destinationRanges = append(destinationRanges, passRange{
-							start: values.destination.start,
-							end:   values.destination.end,
+							start: mapRange.destination.start,
+							end:   mapRange.destination.end,
 						})
 
 						unhandledSourceRanges = append(unhandledSourceRanges, passRange{
 							start: sourceRanges[j].start,
-							end:   values.source.start - 1,
+							end:   mapRange.source.start - 1,
 						})
 
 						unhandledSourceRanges = append(unhandledSourceRanges, passRange{
-							start: values.source.end + 1,
+							start: mapRange.source.end + 1,
 							end:   sourceRanges[j].end,
 						})
-					} else if sourceRanges[j].start >= values.source.start && sourceRanges[j].start <= values.source.end && sourceRanges[j].end > values.source.end { // starts in the range but doesn't end in it
+					} else if sourceRanges[j].start >= mapRange.source.start && sourceRanges[j].start <= mapRange.source.end && sourceRanges[j].end > mapRange.source.end { // starts in the range but doesn't end in it
 						destinationRanges = append(destinationRanges, passRange{
-							start: values.destination.start + (sourceRanges[j].start - values.source.start),
-							end:   values.destination.end,
+							start: mapRange.destination.start + (sourceRanges[j].start - mapRange.source.start),
+							end:   mapRange.destination.end,
 						})
 
 						unhandledSourceRanges = append(unhandledSourceRanges, passRange{
-							start: values.source.end + 1,
+							start: mapRange.source.end + 1,
 							end:   sourceRanges[j].end,
 						})
-					} else if sourceRanges[j].start < values.source.start && sourceRanges[j].end >= values.source.start && sourceRanges[j].end <= values.source.end { // ends in the range but doesn't start in it
+					} else if sourceRanges[j].start < mapRange.source.start && sourceRanges[j].end >= mapRange.source.start && sourceRanges[j].end <= mapRange.source.end { // ends in the range but doesn't start in it
 						destinationRanges = append(destinationRanges, passRange{
-							start: values.destination.start,
-							end:   values.destination.start + (sourceRanges[j].end - values.source.start),
+							start: mapRange.destination.start,
+							end:   mapRange.destination.start + (sourceRanges[j].end - mapRange.source.start),
 						})
 
 						unhandledSourceRanges = append(unhandledSourceRanges, passRange{
 							start: sourceRanges[j].start,
-							end:   values.source.start - 1,
+							end:   mapRange.source.start - 1,
 						})
 					} else {
 						unhandledSourceRanges = append(unhandledSourceRanges, passRange{
