@@ -24,6 +24,8 @@ var expectations = map[string]string{
 	"6-2": "36749103",
 	"7-1": "248179786",
 	"7-2": "247885995",
+	"8-1": "18113",
+	"8-2": "12315788159977",
 }
 
 func TestDays(t *testing.T) {
