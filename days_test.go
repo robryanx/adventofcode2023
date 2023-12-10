@@ -29,7 +29,7 @@ var expectations = map[string]string{
 	"9-1":  "1798691765",
 	"9-2":  "1104",
 	"10-1": "6864",
-	"10-2": "349", // around 500ms runtime
+	"10-2": "349",
 }
 
 func TestDays(t *testing.T) {

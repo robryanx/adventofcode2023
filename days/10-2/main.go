@@ -169,6 +169,7 @@ func main() {
 	}
 
 	total := 0
+	enclosed := make(map[int]struct{})
 	for y := 0; y < len(newGrid); y++ {
 		firstNonDot := 10000
 		lastNonDot := -1
@@ -185,10 +186,17 @@ func main() {
 
 		for x := 0; x < len(newGrid[0]); x++ {
 			if newGrid[y][x] == '.' && x > firstNonDot && x < lastNonDot {
-				visited := make(map[int]struct{})
-				completed := false
-				navigate(expandedGridVertical, y*2, x*2, &visited, &completed)
-				if !completed {
+				if _, ok := enclosed[y*2000+x*2]; !ok {
+					visited := make(map[int]struct{})
+					completed := false
+					navigate(expandedGridVertical, y*2, x*2, &visited, &completed)
+					if !completed {
+						total++
+						for pos := range visited {
+							enclosed[pos] = visited[pos]
+						}
+					}
+				} else {
 					total++
 				}
 			}
