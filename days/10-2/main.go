@@ -187,6 +187,9 @@ func main() {
 		for x := 0; x < len(newGrid[0]); x++ {
 			if newGrid[y][x] == '.' && x > firstNonDot && x < lastNonDot {
 				if _, ok := enclosed[y*2000+x*2]; !ok {
+					if len(enclosed) > 0 {
+						continue
+					}
 					visited := make(map[int]struct{})
 					completed := false
 					navigate(expandedGridVertical, y*2, x*2, &visited, &completed)
