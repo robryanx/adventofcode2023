@@ -10,11 +10,6 @@ import (
 	"github.com/robryanx/adventofcode2023/util"
 )
 
-type pos struct {
-	y int
-	x int
-}
-
 type total struct {
 	start int
 	end   int

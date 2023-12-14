@@ -8,6 +8,32 @@ func PrintGrid(grid [][]byte) {
 	}
 }
 
+func CopyGrid(grid [][]byte) [][]byte {
+	newGrid := make([][]byte, 0, len(grid))
+	for y := 0; y < len(grid); y++ {
+		newRow := append([]byte{}, grid[y]...)
+		newGrid = append(newGrid, newRow)
+	}
+
+	return newGrid
+}
+
+func CompareGrids(gridA [][]byte, gridB [][]byte) bool {
+	if len(gridA) != len(gridB) || len(gridA[0]) != len(gridB[0]) {
+		return false
+	}
+
+	for y := 0; y < len(gridA); y++ {
+		for x := 0; x < len(gridB); x++ {
+			if gridA[y][x] != gridB[y][x] {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
 func AdjacentMatch(grid [][]byte, y, x int, incDiagonal bool, cb func(char byte, y, x int) bool) {
 	if y-1 >= 0 {
 		earlyExit := cb(grid[y-1][x], y-1, x)

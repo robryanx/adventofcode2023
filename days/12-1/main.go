@@ -8,11 +8,6 @@ import (
 	"github.com/robryanx/adventofcode2023/util"
 )
 
-type pos struct {
-	y int
-	x int
-}
-
 func main() {
 	rows, err := util.ReadStrings(12, false, "\n")
 	if err != nil {
