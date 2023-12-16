@@ -41,7 +41,7 @@ func main() {
 		},
 	}
 
-	startingPos := map[string]struct{}{}
+	startingPos := map[int]struct{}{}
 	visited := map[int]struct{}{}
 
 	for {
@@ -61,19 +61,19 @@ func main() {
 					switch grid[beam.y][beam.x] {
 					case '|':
 						beam.direction = South
-						if _, ok := startingPos[fmt.Sprintf("%d-%d-%d", beam.y, beam.x, beam.direction)]; ok {
+						if _, ok := startingPos[hash(beam.y, beam.x, beam.direction)]; ok {
 							beam.ended = true
 						} else {
-							startingPos[fmt.Sprintf("%d-%d-%d", beam.y, beam.x, beam.direction)] = struct{}{}
+							startingPos[hash(beam.y, beam.x, beam.direction)] = struct{}{}
 						}
-						if _, ok := startingPos[fmt.Sprintf("%d-%d-%d", beam.y, beam.x, North)]; !ok {
+						if _, ok := startingPos[hash(beam.y, beam.x, North)]; !ok {
 							beams = append(beams, &dirPos{
 								y:         beam.y,
 								x:         beam.x,
 								direction: North,
 							})
 
-							startingPos[fmt.Sprintf("%d-%d-%d", beam.y, beam.x, North)] = struct{}{}
+							startingPos[hash(beam.y, beam.x, North)] = struct{}{}
 						}
 					case '\\':
 						beam.direction = South
@@ -90,19 +90,19 @@ func main() {
 					switch grid[beam.y][beam.x] {
 					case '|':
 						beam.direction = South
-						if _, ok := startingPos[fmt.Sprintf("%d-%d-%d", beam.y, beam.x, beam.direction)]; ok {
+						if _, ok := startingPos[hash(beam.y, beam.x, beam.direction)]; ok {
 							beam.ended = true
 						} else {
-							startingPos[fmt.Sprintf("%d-%d-%d", beam.y, beam.x, beam.direction)] = struct{}{}
+							startingPos[hash(beam.y, beam.x, beam.direction)] = struct{}{}
 						}
-						if _, ok := startingPos[fmt.Sprintf("%d-%d-%d", beam.y, beam.x, North)]; !ok {
+						if _, ok := startingPos[hash(beam.y, beam.x, North)]; !ok {
 							beams = append(beams, &dirPos{
 								y:         beam.y,
 								x:         beam.x,
 								direction: North,
 							})
 
-							startingPos[fmt.Sprintf("%d-%d-%d", beam.y, beam.x, North)] = struct{}{}
+							startingPos[hash(beam.y, beam.x, North)] = struct{}{}
 						}
 					case '\\':
 						beam.direction = North
@@ -119,19 +119,19 @@ func main() {
 					switch grid[beam.y][beam.x] {
 					case '-':
 						beam.direction = West
-						if _, ok := startingPos[fmt.Sprintf("%d-%d-%d", beam.y, beam.x, beam.direction)]; ok {
+						if _, ok := startingPos[hash(beam.y, beam.x, beam.direction)]; ok {
 							beam.ended = true
 						} else {
-							startingPos[fmt.Sprintf("%d-%d-%d", beam.y, beam.x, beam.direction)] = struct{}{}
+							startingPos[hash(beam.y, beam.x, beam.direction)] = struct{}{}
 						}
-						if _, ok := startingPos[fmt.Sprintf("%d-%d-%d", beam.y, beam.x, East)]; !ok {
+						if _, ok := startingPos[hash(beam.y, beam.x, East)]; !ok {
 							beams = append(beams, &dirPos{
 								y:         beam.y,
 								x:         beam.x,
 								direction: East,
 							})
 
-							startingPos[fmt.Sprintf("%d-%d-%d", beam.y, beam.x, East)] = struct{}{}
+							startingPos[hash(beam.y, beam.x, East)] = struct{}{}
 						}
 					case '\\':
 						beam.direction = West
@@ -148,19 +148,19 @@ func main() {
 					switch grid[beam.y][beam.x] {
 					case '-':
 						beam.direction = West
-						if _, ok := startingPos[fmt.Sprintf("%d-%d-%d", beam.y, beam.x, beam.direction)]; ok {
+						if _, ok := startingPos[hash(beam.y, beam.x, beam.direction)]; ok {
 							beam.ended = true
 						} else {
-							startingPos[fmt.Sprintf("%d-%d-%d", beam.y, beam.x, beam.direction)] = struct{}{}
+							startingPos[hash(beam.y, beam.x, beam.direction)] = struct{}{}
 						}
-						if _, ok := startingPos[fmt.Sprintf("%d-%d-%d", beam.y, beam.x, East)]; !ok {
+						if _, ok := startingPos[hash(beam.y, beam.x, East)]; !ok {
 							beams = append(beams, &dirPos{
 								y:         beam.y,
 								x:         beam.x,
 								direction: East,
 							})
 
-							startingPos[fmt.Sprintf("%d-%d-%d", beam.y, beam.x, East)] = struct{}{}
+							startingPos[hash(beam.y, beam.x, East)] = struct{}{}
 						}
 					case '\\':
 						beam.direction = East
@@ -179,4 +179,9 @@ func main() {
 	}
 
 	fmt.Println(len(visited))
+}
+
+func hash(y, x int, dir Direction) int {
+	dirVal := (int(dir) + 1) * 1003
+	return (y*1001 + x) * dirVal
 }
