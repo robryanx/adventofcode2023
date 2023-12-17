@@ -1,6 +1,10 @@
 package util
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+	"strings"
+)
 
 func PrintGrid(grid [][]byte) {
 	for y := 0; y < len(grid); y++ {
@@ -8,10 +12,48 @@ func PrintGrid(grid [][]byte) {
 	}
 }
 
+func PrintStrGrid(grid [][]string) {
+	for y := 0; y < len(grid); y++ {
+		fmt.Printf("%s\n", strings.Join(grid[y], ""))
+	}
+}
+
+func PrintGridWithPath(grid [][]byte, path []NodePos) {
+	grid = CopyGrid(grid)
+	for _, p := range path {
+		grid[p.Y][p.X] = '#'
+	}
+
+	PrintGrid(grid)
+}
+
+func PrintGridWithCosts(grid [][]byte, path []NodePos) {
+	strGrid := CopyStrGrid(grid)
+	for _, p := range path {
+		fmt.Println(p.cost)
+		strGrid[p.Y][p.X] = fmt.Sprintf("|%s|", strconv.Itoa(p.cost))
+	}
+
+	PrintStrGrid(strGrid)
+}
+
 func CopyGrid(grid [][]byte) [][]byte {
 	newGrid := make([][]byte, 0, len(grid))
 	for y := 0; y < len(grid); y++ {
 		newRow := append([]byte{}, grid[y]...)
+		newGrid = append(newGrid, newRow)
+	}
+
+	return newGrid
+}
+
+func CopyStrGrid(grid [][]byte) [][]string {
+	newGrid := make([][]string, 0, len(grid))
+	for y := 0; y < len(grid); y++ {
+		newRow := []string{}
+		for x := 0; x < len(grid[0]); x++ {
+			newRow = append(newRow, string(grid[y][x]))
+		}
 		newGrid = append(newGrid, newRow)
 	}
 

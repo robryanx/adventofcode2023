@@ -1,0 +1,256 @@
+package util
+
+import (
+	"container/heap"
+)
+
+type priorityQueue []*node
+
+func (pq priorityQueue) Len() int {
+	return len(pq)
+}
+
+func (pq priorityQueue) Less(i, j int) bool {
+	return pq[i].rank < pq[j].rank
+}
+
+func (pq priorityQueue) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+	pq[i].index = i
+	pq[j].index = j
+}
+
+func (pq *priorityQueue) Push(x interface{}) {
+	n := len(*pq)
+	no := x.(*node)
+	no.index = n
+	*pq = append(*pq, no)
+}
+
+func (pq *priorityQueue) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	no := old[n-1]
+	no.index = -1
+	*pq = old[0 : n-1]
+	return no
+}
+
+type NodePos struct {
+	Y    int
+	X    int
+	cost int
+}
+
+func abs(num int) int {
+	if num < 0 {
+		return num * -1
+	}
+
+	return num
+}
+
+// node is a wrapper to store A* data for a Pather node.
+type node struct {
+	pos    NodePos
+	rank   int
+	parent *node
+	open   bool
+	closed bool
+	index  int
+}
+
+func (p node) parentDirection() (int, Direction) {
+	if p.parent == nil {
+		return 0, Unknown
+	}
+
+	if p.pos.X == p.parent.pos.X && p.pos.Y < p.parent.pos.Y {
+		count := 1
+		current := p.parent
+		for current.parent != nil {
+			if current.pos.X == current.parent.pos.X && current.pos.Y < current.parent.pos.Y {
+				count++
+			} else {
+				break
+			}
+			current = current.parent
+		}
+
+		return count, North
+	}
+
+	if p.pos.X == p.parent.pos.X && p.pos.Y > p.parent.pos.Y {
+		count := 1
+		current := p.parent
+		for current.parent != nil {
+			if current.pos.X == current.parent.pos.X && current.pos.Y > current.parent.pos.Y {
+				count++
+			} else {
+				break
+			}
+			current = current.parent
+		}
+
+		return count, South
+	}
+
+	if p.pos.Y == p.parent.pos.Y && p.pos.X > p.parent.pos.X {
+		count := 1
+		current := p.parent
+		for current.parent != nil {
+			if current.pos.Y == current.parent.pos.Y && current.pos.X > current.parent.pos.X {
+				count++
+			} else {
+				break
+			}
+			current = current.parent
+		}
+
+		return count, East
+	}
+
+	if p.pos.Y == p.parent.pos.Y && p.pos.X < p.parent.pos.X {
+		count := 1
+		current := p.parent
+		for current.parent != nil {
+			if current.pos.Y == current.parent.pos.Y && current.pos.X < current.parent.pos.X {
+				count++
+			} else {
+				break
+			}
+			current = current.parent
+		}
+
+		return count, West
+	}
+
+	return 0, Unknown
+}
+
+func (p node) neighbors(grid [][]byte) []NodePos {
+	list := make([]NodePos, 0, 4)
+	maxCount := 3
+
+	count, parentDirection := p.parentDirection()
+	if parentDirection != North || count < maxCount {
+		if p.pos.Y > 0 {
+			list = append(list, NodePos{
+				Y:    p.pos.Y - 1,
+				X:    p.pos.X,
+				cost: int(grid[p.pos.Y-1][p.pos.X] - '0'),
+			})
+		}
+	}
+
+	if parentDirection != South || count < maxCount {
+		if p.pos.Y < len(grid)-1 {
+			list = append(list, NodePos{
+				Y:    p.pos.Y + 1,
+				X:    p.pos.X,
+				cost: int(grid[p.pos.Y+1][p.pos.X] - '0'),
+			})
+		}
+	}
+
+	if parentDirection != West || count < maxCount {
+		if p.pos.X > 0 {
+			list = append(list, NodePos{
+				Y:    p.pos.Y,
+				X:    p.pos.X - 1,
+				cost: int(grid[p.pos.Y][p.pos.X-1] - '0'),
+			})
+		}
+	}
+
+	if parentDirection != East || count < maxCount {
+		if p.pos.X < len(grid[0])-1 {
+			list = append(list, NodePos{
+				Y:    p.pos.Y,
+				X:    p.pos.X + 1,
+				cost: int(grid[p.pos.Y][p.pos.X+1] - '0'),
+			})
+		}
+	}
+
+	return list
+}
+
+func (p node) estimatedCost(grid [][]byte, to NodePos) int {
+	return abs(p.pos.Y-to.Y) + abs(p.pos.X-to.X)
+}
+
+// nodeMap is a collection of nodes keyed by Pather nodes for quick reference.
+type nodeMap map[int]*node
+
+func (nm nodeMap) get(pos NodePos) *node {
+	n, ok := nm[pos.Y*1000+pos.X]
+	if !ok {
+		n = &node{
+			pos: pos,
+		}
+		nm[pos.Y*1000+pos.X] = n
+	}
+	return n
+}
+
+func Pathfind(grid [][]byte, from NodePos, to NodePos) (path []NodePos, distance int, found bool) {
+	nm := nodeMap{}
+	nq := &priorityQueue{}
+	heap.Init(nq)
+
+	fromNode := nm.get(from)
+	fromNode.open = true
+	heap.Push(nq, fromNode)
+	for {
+		if nq.Len() == 0 {
+			// There's no path, return found false.
+			return
+		}
+		current := heap.Pop(nq).(*node)
+		current.open = false
+		current.closed = true
+
+		if current == nm.get(to) {
+			// Found a path to the goal.
+			p := []NodePos{}
+			curr := current
+			for curr != nil {
+				p = append(p, curr.pos)
+				curr = curr.parent
+			}
+			return p, current.pos.cost, true
+		}
+
+		for _, neighbor := range current.neighbors(grid) {
+			cost := current.pos.cost + neighbor.cost
+			neighborNode := nm.get(neighbor)
+
+			if cost < neighborNode.pos.cost {
+				if neighborNode.open {
+					heap.Remove(nq, neighborNode.index)
+				}
+				neighborNode.open = false
+				neighborNode.closed = false
+			}
+			if !neighborNode.open && !neighborNode.closed {
+				neighborNode.pos.cost = cost
+				neighborNode.open = true
+				neighborNode.rank = cost + neighborNode.estimatedCost(grid, to)
+				neighborNode.parent = current
+
+				heap.Push(nq, neighborNode)
+			}
+		}
+	}
+}
+
+type Direction int
+
+const (
+	North Direction = iota
+	East
+	South
+	West
+	Unknown
+)
