@@ -7,9 +7,9 @@ import (
 )
 
 type dirPos struct {
-	y         int
-	x         int
-	direction Direction
+	y    int
+	x    int
+	cost int
 }
 
 type Direction int
@@ -33,143 +33,83 @@ func main() {
 		grid = append(grid, []byte(row))
 	}
 
-	from := util.NodePos{
-		Y: 0,
-		X: 0,
+	graph := util.NewGraph()
+
+	for y := 0; y < len(grid); y++ {
+		for x := 0; x < len(grid[0]); x++ {
+			for _, path := range paths(grid, y, x) {
+				graph.AddEdge(fmt.Sprintf("%d-%d", y, x), fmt.Sprintf("%d-%d", path.y, path.x), path.cost)
+			}
+		}
 	}
 
-	to := util.NodePos{
-		Y: len(grid) - 1,
-		X: len(grid[0]) - 1,
-	}
-
-	path, distance, _ := util.Pathfind(grid, from, to)
-
-	fmt.Println(distance)
-	util.PrintGridWithPath(grid, path)
+	score, path := graph.GetPath(fmt.Sprintf("%d-%d", 0, 0), fmt.Sprintf("%d-%d", len(grid)-1, len(grid[0])-1))
+	fmt.Println(score)
+	fmt.Println(path)
 }
 
-func paths(grid [][]byte, current dirPos, visited map[int]struct{}, cost int, bestCost *int) {
-	if cost > *bestCost {
-		return
-	}
+func paths(grid [][]byte, y, x int) []dirPos {
+	newPaths := make([]dirPos, 0, 12)
 
-	fmt.Println(current)
-
-	if current.x == len(grid[0])-1 && current.y == len(grid)-1 {
-		fmt.Println(cost)
-		if cost < *bestCost {
-			*bestCost = cost
-		}
-
-		return
-	}
-
-	if current.direction != North {
-		for i := 1; i < 4; i++ {
-			if current.y-i >= 0 {
-				if _, ok := visited[(current.y-i)*100+current.x]; !ok {
-					newCost := 0
-					for j := 1; j <= i; j++ {
-						newCost += int(grid[current.y-j][current.x] - '0')
-					}
-
-					newPos := dirPos{
-						y:         current.y - i,
-						x:         current.x,
-						direction: North,
-					}
-
-					newVisited := make(map[int]struct{}, len(visited))
-					for k, v := range visited {
-						newVisited[k] = v
-					}
-					newVisited[newPos.y*100+newPos.x] = struct{}{}
-
-					paths(grid, newPos, newVisited, cost+newCost, bestCost)
-				}
+	for i := 1; i < 4; i++ {
+		if y-i >= 0 {
+			newCost := 0
+			for j := 1; j <= i; j++ {
+				newCost += int(grid[y-j][x] - '0')
 			}
+
+			newPaths = append(newPaths, dirPos{
+				y:    y - i,
+				x:    x,
+				cost: newCost,
+			})
 		}
 	}
 
-	if current.direction != South {
-		for i := 1; i < 4; i++ {
-			if current.y+i < len(grid) {
-				if _, ok := visited[(current.y-i)*100+current.x]; !ok {
-					newCost := 0
-					for j := 1; j <= i; j++ {
-						newCost += int(grid[current.y+j][current.x] - '0')
-					}
-
-					newPos := dirPos{
-						y:         current.y + i,
-						x:         current.x,
-						direction: South,
-					}
-
-					newVisited := make(map[int]struct{}, len(visited))
-					for k, v := range visited {
-						newVisited[k] = v
-					}
-					newVisited[newPos.y*100+newPos.x] = struct{}{}
-
-					paths(grid, newPos, newVisited, cost+newCost, bestCost)
-				}
+	for i := 1; i < 4; i++ {
+		if y+i < len(grid) {
+			newCost := 0
+			for j := 1; j <= i; j++ {
+				newCost += int(grid[y+j][x] - '0')
 			}
+
+			newPaths = append(newPaths, dirPos{
+				y:    y + i,
+				x:    x,
+				cost: newCost,
+			})
 		}
 	}
 
-	if current.direction != West {
-		for i := 1; i < 4; i++ {
-			if current.x-i > 0 {
-				if _, ok := visited[(current.y-i)*100+current.x]; !ok {
-					newCost := 0
-					for j := 1; j <= i; j++ {
-						newCost += int(grid[current.y][current.x-j] - '0')
-					}
-
-					newPos := dirPos{
-						y:         current.y,
-						x:         current.x - i,
-						direction: West,
-					}
-
-					newVisited := make(map[int]struct{}, len(visited))
-					for k, v := range visited {
-						newVisited[k] = v
-					}
-					newVisited[newPos.y*100+newPos.x] = struct{}{}
-
-					paths(grid, newPos, newVisited, cost+newCost, bestCost)
-				}
+	for i := 1; i < 4; i++ {
+		if x-i >= 0 {
+			newCost := 0
+			for j := 1; j <= i; j++ {
+				newCost += int(grid[y][x-j] - '0')
 			}
+
+			newPaths = append(newPaths, dirPos{
+				y:    y,
+				x:    x - i,
+				cost: newCost,
+			})
 		}
 	}
 
-	if current.direction != East {
-		for i := 1; i < 4; i++ {
-			if current.x+i < len(grid[0]) {
-				if _, ok := visited[(current.y-i)*100+current.x]; !ok {
-					newCost := 0
-					for j := 1; j <= i; j++ {
-						newCost += int(grid[current.y][current.x+j] - '0')
-					}
-
-					newPos := dirPos{
-						y:         current.y,
-						x:         current.x + i,
-						direction: East,
-					}
-
-					newVisited := make(map[int]struct{}, len(visited))
-					for k, v := range visited {
-						newVisited[k] = v
-					}
-					newVisited[newPos.y*100+newPos.x] = struct{}{}
-
-					paths(grid, newPos, newVisited, cost+newCost, bestCost)
-				}
+	for i := 1; i < 4; i++ {
+		if x+i < len(grid[0]) {
+			newCost := 0
+			for j := 1; j <= i; j++ {
+				newCost += int(grid[y][x+j] - '0')
 			}
+
+			newPaths = append(newPaths, dirPos{
+				y:    y,
+				x:    x + i,
+				cost: newCost,
+			})
 		}
 	}
+
+	return newPaths
 }

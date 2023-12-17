@@ -21,7 +21,16 @@ func PrintStrGrid(grid [][]string) {
 func PrintGridWithPath(grid [][]byte, path []NodePos) {
 	grid = CopyGrid(grid)
 	for _, p := range path {
-		grid[p.Y][p.X] = '#'
+		switch p.direction {
+		case North:
+			grid[p.Y][p.X] = '^'
+		case South:
+			grid[p.Y][p.X] = 'v'
+		case East:
+			grid[p.Y][p.X] = '>'
+		case West:
+			grid[p.Y][p.X] = '<'
+		}
 	}
 
 	PrintGrid(grid)
