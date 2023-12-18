@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -31,65 +32,161 @@ func main() {
 		panic(err)
 	}
 
+	lines := []line{}
+
 	currentPos := pos{}
-
-	yLookup := make(map[int][]line)
-
 	for _, row := range rows {
 		rowParts := strings.Split(row, " ")
 
-		distance64, err := strconv.ParseInt(rowParts[2][2:7], 16, 64)
+		// distance64, err := strconv.ParseInt(rowParts[2][2:7], 16, 64)
+		// if err != nil {
+		// 	panic(err)
+		// }
+		//
+		// distance := int(distance64)
+
+		distance, err := strconv.Atoi(rowParts[1])
 		if err != nil {
 			panic(err)
 		}
-
-		distance := int(distance64)
-		switch directionLookup[rowParts[2][7:][0]] {
+		// directionLookup[rowParts[2][7:][0]]
+		switch byte(rowParts[0][0]) {
 		case 'R':
-			l := line{
-				start: currentPos,
-				end: pos{
-					y: currentPos.y,
-					x: currentPos.x + distance,
-				},
-			}
-			yLookup[currentPos.y] = append(yLookup[currentPos.y], l)
 			currentPos.x += distance
 		case 'L':
-			l := line{
-				start: currentPos,
-				end: pos{
-					y: currentPos.y,
-					x: currentPos.x - distance,
-				},
-			}
-			yLookup[currentPos.y] = append(yLookup[currentPos.y], l)
 			currentPos.x -= distance
 		case 'U':
-			l := line{
-				start: currentPos,
-				end: pos{
-					y: currentPos.y - distance,
+			lines = append(lines, line{
+				start: pos{
 					x: currentPos.x,
+					y: currentPos.y - distance,
 				},
-			}
-			yLookup[currentPos.y] = append(yLookup[currentPos.y], l)
+				end: currentPos,
+			})
 			currentPos.y -= distance
 		case 'D':
-			l := line{
+			lines = append(lines, line{
 				start: currentPos,
 				end: pos{
-					y: currentPos.y + distance,
 					x: currentPos.x,
+					y: currentPos.y + distance,
 				},
-			}
-			yLookup[currentPos.y] = append(yLookup[currentPos.y], l)
+			})
 			currentPos.y += distance
 		}
 	}
 
-	fmt.Println(currentPos)
-	fmt.Println(yLookup)
+	slices.SortFunc(lines, func(a line, b line) int {
+		if a.start.y > b.start.y {
+			return 1
+		} else if a.start.y < b.start.y {
+			return -1
+		}
+
+		return 0
+	})
+
+	total := 0
+
+	var lineSet []line
+	current := lines[0].start.y
+	nextStart := lines[0].start.y
+	nextEnd := 10000000000
+	for {
+		if current == nextStart {
+			maxAdded := -1
+			for i := 0; i < len(lines); i++ {
+				if lines[i].start.y == nextStart {
+					lineSet = append(lineSet, lines[i])
+					maxAdded = i
+				}
+			}
+
+			if maxAdded > -1 {
+				lines = lines[maxAdded+1:]
+				if len(lines) > 0 {
+					nextStart = lines[0].start.y
+				} else {
+					nextStart = -1
+				}
+			}
+
+			nextEnd = 10000000000
+			for _, l := range lineSet {
+				if l.end.y < nextEnd {
+					nextEnd = l.end.y
+				}
+			}
+		}
+
+		// sort the line set by x value
+		slices.SortFunc(lineSet, func(a line, b line) int {
+			if a.start.x > b.start.x {
+				return 1
+			} else if a.start.x < b.start.x {
+				return -1
+			}
+
+			return 0
+		})
+
+		inside := false
+		var prev *line
+		across := 0
+		for _, l := range lineSet {
+			l := l
+			if prev == nil {
+				prev = &l
+				inside = true
+			} else if !inside {
+				inside = true
+			} else {
+				across += l.start.x - prev.end.x + 3
+				prev = &l
+				inside = false
+			}
+		}
+
+		fmt.Printf("current: %d\n", current)
+		fmt.Printf("line set: %+v\n", lineSet)
+		fmt.Println(nextEnd)
+		fmt.Println(across)
+		fmt.Println(across * (nextEnd - current))
+		fmt.Println()
+
+		if current == nextEnd {
+			var newLineSet []line
+			for i := 0; i < len(lineSet); i++ {
+				if lineSet[i].end.y != nextEnd {
+					newLineSet = append(newLineSet, lineSet[i])
+				}
+			}
+
+			lineSet = newLineSet
+			if len(lineSet) == 0 {
+				break
+			}
+
+			nextEnd = 10000000000
+			for _, l := range lineSet {
+				if l.end.y < nextEnd {
+					nextEnd = l.end.y
+				}
+			}
+		}
+
+		if nextStart < nextEnd && nextStart != -1 {
+			current = nextStart
+		} else {
+			current = nextEnd
+		}
+	}
+
+	// fmt.Println(lineSet)
+	// fmt.Println(current)
+	// fmt.Println(nextStart)
+	// fmt.Println(nextEnd)
+	fmt.Println(total)
 
 	// yOffset := b.minY
 	// yLength := b.maxY - b.minY + 1
