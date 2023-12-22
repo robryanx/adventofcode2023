@@ -53,24 +53,5 @@ func main() {
 		}
 	}
 
-	fmt.Println(lowestCommonMultiple(zPos[0], zPos[1], zPos[2:]...))
-}
-
-func greatestCommonDivisor(a, b int) int {
-	for b != 0 {
-		t := b
-		b = a % b
-		a = t
-	}
-	return a
-}
-
-func lowestCommonMultiple(a, b int, integers ...int) int {
-	result := a * b / greatestCommonDivisor(a, b)
-
-	for i := 0; i < len(integers); i++ {
-		result = lowestCommonMultiple(result, integers[i])
-	}
-
-	return result
+	fmt.Println(util.LowestCommonMultiple(zPos[0], zPos[1], zPos[2:]...))
 }
