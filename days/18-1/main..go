@@ -138,7 +138,6 @@ func main() {
 				postDown := false
 
 				if isLine {
-					fmt.Println(y, x)
 					if y > 0 && grid[y-1][x] == '#' {
 						preUp = true
 					} else if y < len(grid)-1 && grid[y+1][x] == '#' {
@@ -149,7 +148,6 @@ func main() {
 					} else if y < len(grid)-1 && grid[y+1][x+placed] == '#' {
 						postDown = true
 					}
-					fmt.Println(preUp, preDown, postUp, postDown, y+1, x+placed)
 
 					if (preUp && postDown) || (postUp && preDown) {
 						inside = !inside
@@ -174,6 +172,4 @@ func main() {
 	}
 
 	fmt.Println(total)
-
-	util.PrintGrid(grid)
 }
