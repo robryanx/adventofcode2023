@@ -135,53 +135,18 @@ func main() {
 
 	total := 0
 	for i := 0; i < len(bricks); i++ {
-		newBricks := append([]brick{}, bricks[:i]...)
-		newBricks = append(newBricks, bricks[i+1:]...)
-		count := restack(newBricks)
-		total += count
+		removed := []int{i}
+		closed := []int{}
+		count := 0
+		cascade(bricks, i, supportedBy, &removed, &closed, &count)
+
+		total += (count - 1)
 	}
 
 	fmt.Println(total)
 }
 
-func restack(bricks []brick) int {
-	moved := make(map[int]struct{})
-	for i := 0; i < len(bricks); i++ {
-		if bricks[i].start.z == 1 {
-			continue
-		}
-
-		// check if the brick can move down
-		for {
-			testZ := bricks[i].start.z - 1
-			canMove := true
-			for j := 0; j < i; j++ {
-				if bricks[j].end.z >= testZ {
-					if intersect(bricks[i], bricks[j]) {
-						canMove = false
-					}
-				}
-			}
-
-			if !canMove {
-				break
-			}
-
-			bricks[i].start.z--
-			bricks[i].end.z--
-
-			moved[i] = struct{}{}
-
-			if bricks[i].start.z == 1 {
-				break
-			}
-		}
-	}
-
-	return len(moved)
-}
-
-func cascade(bricks []brick, b int, supportedBy map[int][]int, removed []int, closed *[]int, count *int) {
+func cascade(bricks []brick, b int, supportedBy map[int][]int, removed *[]int, closed *[]int, count *int) {
 	if slices.Contains(*closed, b) {
 		return
 	}
@@ -193,20 +158,19 @@ func cascade(bricks []brick, b int, supportedBy map[int][]int, removed []int, cl
 		// check if all of the blocks support has been removed
 		allRemoved := true
 		for _, by := range supportedBy[support] {
-			if !slices.Contains(removed, by) {
+			if !slices.Contains(*removed, by) {
 				allRemoved = false
 				break
 			}
 		}
 
 		if allRemoved {
-			removed = append(removed, support)
+			*removed = append(*removed, support)
 			cascadeTo = append(cascadeTo, support)
 		}
 	}
 
 	*closed = append(*closed, b)
-
 	for _, c := range cascadeTo {
 		cascade(bricks, c, supportedBy, removed, closed, count)
 	}

@@ -48,7 +48,7 @@ var expectations = map[string]string{
 	"20-2": "232774988886497",
 	"21-1": "3699",
 	"22-1": "457",
-	"22-2": "79122", // TODO: Make this faster using something like cascade solution
+	"22-2": "79122",
 }
 
 func TestDays(t *testing.T) {
