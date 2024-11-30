@@ -2,7 +2,6 @@ package util
 
 import (
 	"container/heap"
-	"fmt"
 )
 
 type priorityQueue []*node
@@ -287,12 +286,6 @@ func Pathfind(grid [][]byte, from NodePos, to NodePos) (path []NodePos, distance
 		current.open = false
 		current.closed = true
 
-		if current.pos.Y == 0 && current.pos.X == 2 {
-			fmt.Printf("%+v\n", current)
-			fmt.Println(current.parentDirection())
-			fmt.Println(current.neighbors(grid))
-		}
-
 		if current == nm.get(to) {
 			// Found a path to the goal.
 			p := []NodePos{}
@@ -309,11 +302,6 @@ func Pathfind(grid [][]byte, from NodePos, to NodePos) (path []NodePos, distance
 		for _, neighbor := range current.neighbors(grid) {
 			cost := current.pos.cost + neighbor.cost
 			neighborNode := nm.get(neighbor)
-
-			if current.pos.Y == 0 && current.pos.X == 2 {
-				fmt.Printf("%+v\n", neighborNode)
-				fmt.Println(cost)
-			}
 
 			if cost <= neighborNode.pos.cost {
 				if neighborNode.open {

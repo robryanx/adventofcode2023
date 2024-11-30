@@ -3,6 +3,8 @@ package util
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 )
@@ -15,7 +17,10 @@ func filename(day int, isSample bool) string {
 		folder = "samples"
 	}
 
-	return fmt.Sprintf("%s/%d.txt", folder, day)
+	_, fileName, _, _ := runtime.Caller(0)
+	prefixPath := filepath.Dir(fileName)
+
+	return fmt.Sprintf("%s/../%s/%d.txt", prefixPath, folder, day)
 }
 
 func ReadStrings(day int, isSample bool, delim string) ([]string, error) {

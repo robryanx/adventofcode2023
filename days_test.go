@@ -57,11 +57,14 @@ func TestDays(t *testing.T) {
 		day := day
 		t.Run(day, func(t *testing.T) {
 			t.Parallel()
-			cmd := exec.Command(fmt.Sprintf("bin/%s", day))
-			out, err := cmd.CombinedOutput()
+			runCmd := exec.Command("go", "run", fmt.Sprintf("days/%s/main.go", day))
+			output, err := runCmd.CombinedOutput()
+			if err != nil {
+				fmt.Println(output)
+			}
 
 			assert.NoError(t, err)
-			assert.Equal(t, expect, strings.TrimRight(string(out), "\n"), fmt.Sprintf("Day %s", day))
+			assert.Equal(t, expect, strings.TrimRight(string(output), "\n"), fmt.Sprintf("Day %s", day))
 		})
 	}
 }
