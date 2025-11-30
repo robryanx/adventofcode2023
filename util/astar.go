@@ -166,7 +166,6 @@ func (p node) neighborsWithInterval(grid [][]byte) []NodePos {
 			}
 		}
 	}
-
 	if parentDirection != West {
 		for i := 1; i < 4; i++ {
 			if p.pos.X-i >= 0 {
